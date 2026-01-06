@@ -1,0 +1,154 @@
+.results-container {
+  padding: 2rem;
+  background: #1a1a1a;
+  border-radius: 12px;
+  border: 2px solid #333;
+  margin-bottom: 2rem;
+}
+
+.results-container h2 {
+  margin-top: 0;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-size: 1.8rem;
+}
+
+.results-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.summary-card {
+  padding: 1.5rem;
+  background: #2a2a2a;
+  border-radius: 8px;
+  text-align: center;
+  border: 2px solid #333;
+}
+
+.summary-label {
+  color: #888;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.summary-value {
+  font-size: 2rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.votes-chart {
+  margin-bottom: 2rem;
+}
+
+.votes-chart h3 {
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.chart-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.chart-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.chart-label {
+  min-width: 50px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.chart-bar-wrapper {
+  flex: 1;
+  height: 40px;
+  background: #2a2a2a;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #333;
+}
+
+.chart-bar {
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 1rem;
+  min-width: 50px;
+  transition: width 0.5s ease;
+}
+
+.chart-count {
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.individual-votes h3 {
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.votes-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.vote-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #2a2a2a;
+  border-radius: 8px;
+  border: 2px solid #333;
+}
+
+.vote-user {
+  font-weight: 500;
+}
+
+.vote-value-display {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #667eea;
+}
+
+@media (max-width: 768px) {
+  .results-container {
+    padding: 1rem;
+  }
+
+  .results-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-bar-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .chart-bar-wrapper {
+    width: 100%;
+  }
+
+  .votes-list {
+    grid-template-columns: 1fr;
+  }
+}

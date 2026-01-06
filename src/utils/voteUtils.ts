@@ -44,7 +44,13 @@ export const getMostCommonVote = (votes: Vote[], users: User[]): CardValue | nul
 
 export const allVotedExceptObservers = (votes: Vote[], users: User[]): boolean => {
   const votingUsers = users.filter((user) => !user.isObserver);
-  return votingUsers.every((user) =>
-    votes.some((vote) => vote.userId === user.id && vote.value !== null)
+  
+  // Create a Set of voted user IDs for O(n+m) performance instead of O(n*m)
+  const votedUserIds = new Set(
+    votes
+      .filter((vote) => vote.value !== null)
+      .map((vote) => vote.userId)
   );
+  
+  return votingUsers.every((user) => votedUserIds.has(user.id));
 };

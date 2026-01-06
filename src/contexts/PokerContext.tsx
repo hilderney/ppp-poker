@@ -34,7 +34,14 @@ export const PokerProvider: React.FC<PokerProviderProps> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentRoom, setCurrentRoom] = useState<Room | null>(null);
 
-  const generateId = () => Math.random().toString(36).substring(2, 11);
+  const generateId = () => {
+    // Use crypto.randomUUID() for better uniqueness and security
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    // Fallback for environments without crypto.randomUUID()
+    return Math.random().toString(36).substring(2, 11);
+  };
 
   const createRoom = (roomName: string, userName: string) => {
     const userId = generateId();
@@ -69,8 +76,9 @@ export const PokerProvider: React.FC<PokerProviderProps> = ({ children }) => {
       isObserver,
     };
 
-    // In a real app, this would fetch the room from a backend
-    // For now, we'll create a mock room
+    // TODO: Backend Integration - Replace this mock with actual room fetching from backend
+    // This should make an API call to fetch the room details from the server
+    // Example: const room = await fetchRoom(roomId);
     const room: Room = {
       id: roomId,
       name: `Room ${roomId}`,

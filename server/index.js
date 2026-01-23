@@ -8,24 +8,30 @@
 import express from 'express'
 import http from 'http'
 import { WebSocketServer } from 'ws'
-import RoomService from './services/roomService.js'
+import { createRoomService } from './services/roomServiceFactory.js'
 import MessageHandler from './handlers/messageHandler.js'
 
 const OPEN = 1  // WebSocket.OPEN constant
 
-try {
-  console.log('server/index.js: launching')
+/**
+ * Inicializa o servidor com as dependências apropriadas
+ */
+async function initializeServer() {
+  try {
+    console.log('server/index.js: launching')
 
-  // ============================================
-  // Configuração
-  // ============================================
-  const PORT = process.env.PORT || 4000
-  const app = express()
-  const server = http.createServer(app)
-  const wss = new WebSocketServer({ server })
-
-  const roomService = new RoomService()
-  
+    // ============================================
+    // Configuração
+    // ============================================
+    const PORT = process.env.PORT || 4000
+    const adapterType = process.env.DATABASE_ADAPTER || 'mock'
+    
+    console.log(`Initializing RoomService with adapter: ${adapterType}`)
+    const roomService = await createRoomService(adapterType)
+    
+    const app = express()
+    const server = http.createServer(app)
+    const wss = new WebSocketServer({ server })
   // ============================================
   // Handlers de Erro
   // ============================================
@@ -141,6 +147,32 @@ try {
   server.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`)
   })
+
+  // Cleanup on shutdown
+  process.on('SIGINT', async () => {
+    console.log('\nShutting down server gracefully...')
+    wss.close(() => {
+      console.log('WebSocket server closed')
+    })
+    server.close(async () => {
+      console.log('HTTP server closed')
+      if (roomService?.roomRepository?.adapter) {
+        await roomService.roomRepository.adapter.disconnect()
+      }
+      process.exit(0)
+    })
+  })
+} catch (err) {
+  console.error('Server initialization error:', err)
+  if (err && err.stack) console.error(err.stack)
+  process.exit(1)
+}
+
+/**
+ * Inicia o servidor
+ */
+try {
+  initializeServer()
 } catch (err) {
   console.error('Server startup error:', err)
   if (err && err.stack) console.error(err.stack)

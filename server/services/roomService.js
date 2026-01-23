@@ -1,11 +1,15 @@
 /**
  * RoomService - Gerencia o estado das salas de poker
  * Responsável por: criação de salas, gerenciamento de usuários, operações de jogo
+ * 
+ * Usa o padrão Repository + Adapter para persistência
  */
 
 class RoomService {
-  constructor() {
+  constructor(roomRepository = null) {
+    // Compatibilidade com testes legados que não usam repository
     this.rooms = new Map()
+    this.roomRepository = roomRepository
   }
 
   /**

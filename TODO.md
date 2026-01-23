@@ -1,5 +1,26 @@
 # 📋 Roadmap - Escalabilidade Planning Poker
 
+## 🎯 Status Atual
+
+### ✅ COMPLETADO: Adapter Pattern & Database Infrastructure
+- ✅ Database Layer abstrato (IDatabaseAdapter)
+- ✅ PostgresAdapter com Prisma
+- ✅ MockAdapter para testes
+- ✅ RoomRepository implementado
+- ✅ Factory pattern com injeção de dependência
+- ✅ Prisma schema com 4 modelos (Room, User, Vote, RoomHistory)
+- ✅ Prisma client gerado
+- ✅ 35 testes passando com MockAdapter
+- ✅ Server inicialização refatorada com async/await
+- ✅ Documentação: COMPLETION-SUMMARY.md, IMPLEMENTATION-GUIDE.md
+
+### 🔄 PRÓXIMA ETAPA: Configurar PostgreSQL
+- [ ] Instalar PostgreSQL (Docker ou local)
+- [ ] Aplicar migrações Prisma
+- [ ] Testar com dados reais
+
+---
+
 ## 🎯 Visão Geral
 
 Este documento detalha as etapas necessárias para transformar o Planning Poker em uma aplicação escalável e pronta para produção.
@@ -16,11 +37,15 @@ Este documento detalha as etapas necessárias para transformar o Planning Poker 
 - [ ] Criar middleware de autenticação
 
 ### Banco de Dados
-- [ ] Instalar PostgreSQL e criar conexão
-- [ ] Criar migrations (usuários, salas, histórico)
-- [ ] Schema: users, rooms, votes, sessions
-- [ ] Implementar ORM (Prisma ou Sequelize)
-- [ ] Seed com dados de teste
+- [x] Instalar PostgreSQL e criar conexão (pronto, sem DB real)
+- [x] Criar migrations (schema definido)
+- [x] Schema: rooms, users, votes, roomHistory
+- [x] Implementar ORM (Prisma ✅)
+- [x] Adapter Pattern implementado
+- [ ] Provisionar PostgreSQL real (Docker ou serviço)
+- [ ] Executar migrações: `npx prisma migrate dev --name initial`
+- [ ] Seed com dados de teste (opcional)
+- [ ] Testar com dados reais
 
 ### WebSocket Confiável
 - [ ] Migrar de `ws` para `socket.io`

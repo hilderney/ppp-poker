@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Room {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Room data
+  name      String
+  status    String   @default("waiting") // waiting, voting, revealed, finished
+  revealed  Boolean  @default(false)
+
+  // Relations
+  users     User[]
+  votes     Vote[]
+  history   RoomHistory[]
+
+  @@map("rooms")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // User data
+  name      String
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  // Relations
+  votes     Vote[]
+
+  @@map("users")
+}
+
+model Vote {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Vote data
+  card      Int?
+  userId    String
+  roomId    String
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@map("votes")
+}
+
+model RoomHistory {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  // History data
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  
+  // Store snapshot as JSON
+  snapshot  Json     // Array of {name, card}
+  
+  @@map("room_history")
+}

@@ -43,21 +43,11 @@ function ensureClientUser() {
     const users = (s && s.room && Array.isArray(s.room.users)) ? s.room.users : []
 
     // Ensure simulated user exists
-    const hasSim = users.some((u) => u.id === 'sim')
-    if (!hasSim) {
-      const newUsers = [...users, { id: 'sim', name: 'Simulado', card: null }]
-      store.dispatch(setState({ users: newUsers }))
-    }
-
-    // Ensure this client has a user record
-    const now = store.getState()
-    const hasClientUser = now.room && Array.isArray(now.room.users) && now.room.users.some((u) => u.id === clientId)
-    if (!hasClientUser) {
-      const newUsers = [...(now.room.users || []), { id: clientId, name: 'Você', card: null }]
-      store.dispatch(setState({ users: newUsers, currentUserId: clientId }))
-    } else if (!now.room.currentUserId) {
-      store.dispatch(setState({ currentUserId: clientId }))
-    }
+      const hasSim = users.some((u) => u.id === 'sim')
+      if (!hasSim) {
+        const newUsers = [...users, { id: 'sim', name: 'Simulado', card: null }]
+        store.dispatch(setState({ users: newUsers }))
+      }
     return clientId
   } catch (e) {
     return null

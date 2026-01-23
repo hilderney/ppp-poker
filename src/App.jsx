@@ -25,15 +25,24 @@ export default function App() {
     }
   }, [dispatch])
 
-  // connect to WebSocket server and sync state
+  // connect to WebSocket server and sync state (run once)
   React.useEffect(() => {
     const clientId = localStorage.getItem('ppp_client_id')
-    const name = users.find((u) => u.id === clientId)?.name || 'Você'
+    const name = localStorage.getItem('ppp_client_name') || 'Você'
     const wsClient = connectWS({ clientId, name, onState: (s) => dispatch(setState(s)) })
-    // expose for debugging and action sends
     try { window.wsClient = wsClient } catch (e) {}
     return () => { try { wsClient.close(); delete window.wsClient } catch (e) {} }
-  }, [dispatch, users])
+  }, [dispatch])
+
+  // derive room id from URL
+  const roomId = React.useMemo(() => {
+    try { return new URL(window.location.href).searchParams.get('room') || 'default' } catch (e) { return 'default' }
+  }, [])
+
+  // name input state for join
+  const [joinName, setJoinName] = React.useState(localStorage.getItem('ppp_client_name') || '')
+  const clientId = localStorage.getItem('ppp_client_id')
+  const isJoined = users.some((u) => u.id === clientId)
 
   function onSelect(card) {
     if (!currentUserId) return
@@ -91,16 +100,31 @@ export default function App() {
 
         <section className="controls">
           <div style={{ marginBottom: 8 }}>
-            <label style={{ marginRight: 8 }}>Seu nome:</label>
-            <input
-              value={users.find((u) => u.id === currentUserId)?.name ?? ''}
-              onChange={(e) => {
-                const name = e.target.value
-                dispatch(updateUserName({ id: currentUserId, name }))
-                try { window.wsClient && window.wsClient.sendAction({ action: 'rename', clientId: currentUserId, name }) } catch (e) {}
-              }}
-              style={{ marginRight: 8 }}
-            />
+            {!isJoined ? (
+              <div>
+                <label style={{ marginRight: 8 }}>Seu nome:</label>
+                <input value={joinName} onChange={(e) => setJoinName(e.target.value)} style={{ marginRight: 8 }} />
+                <button onClick={() => {
+                  const name = joinName || 'Você'
+                  try { window.wsClient && window.wsClient.sendJoin({ clientId, name, room: roomId }) } catch (e) {}
+                  localStorage.setItem('ppp_client_name', name)
+                  dispatch(setCurrentUser(clientId))
+                }}>Entrar na mesa</button>
+              </div>
+            ) : (
+              <div>
+                <label style={{ marginRight: 8 }}>Seu nome:</label>
+                <input
+                  value={users.find((u) => u.id === currentUserId)?.name ?? ''}
+                  onChange={(e) => {
+                    const name = e.target.value
+                    dispatch(updateUserName({ id: currentUserId, name }))
+                    try { window.wsClient && window.wsClient.sendAction({ action: 'rename', clientId: currentUserId, name }) } catch (e) {}
+                  }}
+                  style={{ marginRight: 8 }}
+                />
+              </div>
+            )}
           </div>
 
           <Hand

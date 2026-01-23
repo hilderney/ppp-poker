@@ -1,13 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
-  hand: [1, 2, 3, 5, 8, 'Coringa', 'Duvida'],
+  hand: [1, 2, 3, 5, 8, 13, 21, 34, 55, 'Coringa', 'Duvida'],
   // default two users for local testing: you + simulated
-  users: [
-    { id: 'me', name: 'Você', card: null },
-    { id: 'sim', name: 'Simulado', card: null }
-  ],
-  currentUserId: 'me',
+  users: [ { id: 'sim', name: 'Simulado', card: null } ],
+  currentUserId: null,
   revealed: false,
   history: []
 }

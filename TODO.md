@@ -9,15 +9,22 @@
 - ✅ RoomRepository implementado
 - ✅ Factory pattern com injeção de dependência
 - ✅ Prisma schema com 4 modelos (Room, User, Vote, RoomHistory)
-- ✅ Prisma client gerado
+- ✅ Prisma client gerado (v6.19.2)
 - ✅ 35 testes passando com MockAdapter
 - ✅ Server inicialização refatorada com async/await
 - ✅ Documentação: COMPLETION-SUMMARY.md, IMPLEMENTATION-GUIDE.md
 
-### 🔄 PRÓXIMA ETAPA: Configurar PostgreSQL
-- [ ] Instalar PostgreSQL (Docker ou local)
-- [ ] Aplicar migrações Prisma
-- [ ] Testar com dados reais
+### ✅ NOVO: SQLite para Desenvolvimento Local
+- ✅ Database configurado para SQLite
+- ✅ Migrações criadas e aplicadas
+- ✅ Banco `prisma/dev.db` (criado na primeira execução)
+- ✅ Prisma downgrade para v6 (melhor suporte SQLite)
+- ✅ SQLITE-SETUP.md documentado
+
+### 🔄 PRÓXIMA ETAPA: PostgreSQL para Produção
+- [ ] (Futuro) Instalar PostgreSQL em produção
+- [ ] (Futuro) Aplicar migrações em PostgreSQL
+- [ ] (Futuro) Testar com dados reais em produção
 
 ---
 
@@ -37,15 +44,14 @@ Este documento detalha as etapas necessárias para transformar o Planning Poker 
 - [ ] Criar middleware de autenticação
 
 ### Banco de Dados
-- [x] Instalar PostgreSQL e criar conexão (pronto, sem DB real)
-- [x] Criar migrations (schema definido)
+- [x] Instalar PostgreSQL e criar conexão (SQLite local ✅)
+- [x] Criar migrations (aplicadas com sucesso)
 - [x] Schema: rooms, users, votes, roomHistory
-- [x] Implementar ORM (Prisma ✅)
+- [x] Implementar ORM (Prisma v6 ✅)
 - [x] Adapter Pattern implementado
-- [ ] Provisionar PostgreSQL real (Docker ou serviço)
-- [ ] Executar migrações: `npx prisma migrate dev --name initial`
+- [x] Desenvolvimento: SQLite em prisma/dev.db
+- [ ] Produção: PostgreSQL (futuro, quando necessário)
 - [ ] Seed com dados de teste (opcional)
-- [ ] Testar com dados reais
 
 ### WebSocket Confiável
 - [ ] Migrar de `ws` para `socket.io`

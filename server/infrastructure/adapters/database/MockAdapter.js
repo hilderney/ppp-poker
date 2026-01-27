@@ -74,4 +74,53 @@ export class MockAdapter {
   async rollback() {
     // No-op for mock
   }
+
+  async createUser(userData) {
+    if (!this.data.has('users')) {
+      this.data.set('users', new Map())
+    }
+    
+    const users = this.data.get('users')
+    const user = { id: this._generateId(), ...userData }
+    users.set(user.id, user)
+    
+    return user
+  }
+
+  async getUserByEmail(email) {
+    const users = this.data.get('users')
+    if (!users) return null
+    
+    for (const user of users.values()) {
+      if (user.email === email) {
+        return user
+      }
+    }
+    
+    return null
+  }
+
+  async getUserById(id) {
+    const users = this.data.get('users')
+    if (!users) return null
+    
+    return users.get(id) || null
+  }
+
+  async updateUser(id, userData) {
+    const users = this.data.get('users')
+    if (!users) return null
+    
+    const user = users.get(id)
+    if (!user) return null
+    
+    const updated = { ...user, ...userData, updatedAt: new Date() }
+    users.set(id, updated)
+    
+    return updated
+  }
+
+  _generateId() {
+    return Math.random().toString(36).substr(2, 9)
+  }
 }

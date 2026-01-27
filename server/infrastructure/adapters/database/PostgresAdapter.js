@@ -127,6 +127,63 @@ export class PostgresAdapter {
   }
 
   /**
+   * Cria um novo usuário
+   */
+  async createUser(userData) {
+    try {
+      return await this.prisma.user.create({
+        data: userData
+      })
+    } catch (error) {
+      console.error('Error creating user:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Obtém usuário por email
+   */
+  async getUserByEmail(email) {
+    try {
+      return await this.prisma.user.findUnique({
+        where: { email }
+      })
+    } catch (error) {
+      console.error('Error finding user by email:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Obtém usuário por ID
+   */
+  async getUserById(id) {
+    try {
+      return await this.prisma.user.findUnique({
+        where: { id }
+      })
+    } catch (error) {
+      console.error('Error finding user by ID:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Atualiza usuário
+   */
+  async updateUser(id, userData) {
+    try {
+      return await this.prisma.user.update({
+        where: { id },
+        data: userData
+      })
+    } catch (error) {
+      console.error('Error updating user:', error)
+      throw error
+    }
+  }
+
+  /**
    * Converte nome da entidade para o nome do modelo Prisma
    * Ex: 'room' -> 'Room', 'user' -> 'User'
    */

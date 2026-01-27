@@ -37,11 +37,11 @@ Este documento detalha as etapas necessárias para transformar o Planning Poker 
 ## 🔴 Phase 1 - MVP
 
 ### Autenticação & Sessão
-- [ ] Instalar e configurar JWT
-- [ ] Criar endpoints de login/registro
-- [ ] Implementar validação de token nos WebSockets
-- [ ] Adicionar refresh token logic
-- [ ] Criar middleware de autenticação
+- [x] Instalar e configurar JWT
+- [x] Criar endpoints de login/registro
+- [x] Implementar validação de token nos WebSockets
+- [x] Adicionar refresh token logic
+- [x] Criar middleware de autenticação
 
 ### Banco de Dados
 - [x] Instalar PostgreSQL e criar conexão (SQLite local ✅)

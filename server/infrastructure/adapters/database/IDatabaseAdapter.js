@@ -110,4 +110,41 @@ export class IDatabaseAdapter {
   async rollback() {
     throw new Error('Not implemented')
   }
+
+  /**
+   * Cria um novo usuário
+   * @param {any} userData
+   * @returns {Promise<any>}
+   */
+  async createUser(userData) {
+    throw new Error('Not implemented')
+  }
+
+  /**
+   * Obtém usuário por email
+   * @param {string} email
+   * @returns {Promise<any|null>}
+   */
+  async getUserByEmail(email) {
+    throw new Error('Not implemented')
+  }
+
+  /**
+   * Obtém usuário por ID
+   * @param {string} id
+   * @returns {Promise<any|null>}
+   */
+  async getUserById(id) {
+    throw new Error('Not implemented')
+  }
+
+  /**
+   * Atualiza usuário
+   * @param {string} id
+   * @param {any} userData
+   * @returns {Promise<any>}
+   */
+  async updateUser(id, userData) {
+    throw new Error('Not implemented')
+  }
 }

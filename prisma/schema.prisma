@@ -34,12 +34,15 @@ model User {
   updatedAt DateTime @updatedAt
 
   // User data
-  name      String
-  roomId    String
-  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  username     String   @unique
+  email        String   @unique
+  passwordHash String
+  name         String?
+  roomId       String?
+  room         Room?    @relation(fields: [roomId], references: [id], onDelete: SetNull)
 
   // Relations
-  votes     Vote[]
+  votes        Vote[]
 
   @@map("users")
 }

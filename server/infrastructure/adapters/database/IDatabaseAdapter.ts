@@ -58,4 +58,24 @@ export interface IDatabaseAdapter {
    * Desfaz uma transação
    */
   rollback(): Promise<void>
+
+  /**
+   * Cria um novo usuário
+   */
+  createUser(userData: any): Promise<any>
+
+  /**
+   * Obtém usuário por email
+   */
+  getUserByEmail(email: string): Promise<any | null>
+
+  /**
+   * Obtém usuário por ID
+   */
+  getUserById(id: string): Promise<any | null>
+
+  /**
+   * Atualiza usuário
+   */
+  updateUser(id: string, userData: any): Promise<any>
 }

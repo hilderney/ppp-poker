@@ -3,6 +3,7 @@
  */
 
 import express from 'express'
+import request from 'supertest'
 import { createAuthRoutes } from '../server/routes/authRoutes.js'
 import { MockAdapter } from '../server/infrastructure/adapters/database/MockAdapter.js'
 import { UserService } from '../server/services/userService.js'

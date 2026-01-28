@@ -139,6 +139,14 @@ export class IDatabaseAdapter {
   }
 
   /**
+   * Lista todos os usuários
+   * @returns {Promise<any[]>}
+   */
+  async getAllUsers() {
+    throw new Error('Not implemented')
+  }
+
+  /**
    * Atualiza usuário
    * @param {string} id
    * @param {any} userData

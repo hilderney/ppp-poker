@@ -8,6 +8,8 @@
 import express from 'express'
 import http from 'http'
 import { WebSocketServer } from 'ws'
+import swaggerUi from 'swagger-ui-express'
+import { swaggerSpec } from './swagger.js'
 import { createRoomService } from './services/roomServiceFactory.js'
 import { UserService } from './services/userService.js'
 import { createAuthRoutes } from './routes/authRoutes.js'
@@ -55,6 +57,12 @@ async function initializeServer() {
       }
       next()
     })
+
+    // ============================================
+    // Swagger Documentation
+    // ============================================
+    app.use('/api-docs', swaggerUi.serve)
+    app.get('/api-docs', swaggerUi.setup(swaggerSpec))
 
     // ============================================
     // Routes

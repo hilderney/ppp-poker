@@ -15,8 +15,40 @@ export function createAuthRoutes(userService) {
   const router = express.Router()
 
   /**
-   * POST /auth/register
-   * Registra um novo usuário
+   * @swagger
+   * /api/auth/register:
+   *   post:
+   *     summary: Registra um novo usuário
+   *     tags: [Authentication]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               username:
+   *                 type: string
+   *                 example: "john_doe"
+   *               email:
+   *                 type: string
+   *                 example: "john@example.com"
+   *               password:
+   *                 type: string
+   *                 example: "SecurePass123!"
+   *               name:
+   *                 type: string
+   *                 example: "John Doe"
+   *             required: [username, email, password]
+   *     responses:
+   *       201:
+   *         description: Usuário registrado com sucesso
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/AuthResponse'
+   *       400:
+   *         description: Erro na validação ou registro
    */
   router.post('/register', async (req, res) => {
     try {
@@ -50,8 +82,34 @@ export function createAuthRoutes(userService) {
   })
 
   /**
-   * POST /auth/login
-   * Faz login de um usuário
+   * @swagger
+   * /api/auth/login:
+   *   post:
+   *     summary: Faz login de um usuário
+   *     tags: [Authentication]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               email:
+   *                 type: string
+   *                 example: "john@example.com"
+   *               password:
+   *                 type: string
+   *                 example: "SecurePass123!"
+   *             required: [email, password]
+   *     responses:
+   *       200:
+   *         description: Login realizado com sucesso
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/AuthResponse'
+   *       400:
+   *         description: Credenciais inválidas
    */
   router.post('/login', async (req, res) => {
     try {
@@ -134,6 +192,37 @@ export function createAuthRoutes(userService) {
       res.status(200).json({ user })
     } catch (error) {
       console.error('Get user error:', error.message)
+      res.status(500).json({ error: error.message })
+    }
+  })
+
+  /**
+   * @swagger
+   * /api/auth/users:
+   *   get:
+   *     summary: Lista todos os usuários
+   *     tags: [Users]
+   *     responses:
+   *       200:
+   *         description: Lista de usuários obtida com sucesso
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 users:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/User'
+   *       500:
+   *         description: Erro ao listar usuários
+   */
+  router.get('/users', async (req, res) => {
+    try {
+      const users = await userService.getAllUsers()
+      res.status(200).json({ users })
+    } catch (error) {
+      console.error('Get all users error:', error.message)
       res.status(500).json({ error: error.message })
     }
   })

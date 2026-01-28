@@ -120,6 +120,17 @@ export class MockAdapter {
     return updated
   }
 
+  async getAllUsers() {
+    const users = this.data.get('users')
+    if (!users) return []
+    
+    return Array.from(users.values()).map(user => ({
+      id: user.id,
+      username: user.username,
+      email: user.email
+    }))
+  }
+
   _generateId() {
     return Math.random().toString(36).substr(2, 9)
   }

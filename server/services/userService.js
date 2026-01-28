@@ -98,4 +98,20 @@ export class UserService {
       email: user.email
     }
   }
+
+  /**
+   * Lista todos os usuários
+   */
+  async getAllUsers() {
+    const users = await this.db.getAllUsers()
+    if (!users) {
+      return []
+    }
+
+    return users.map(user => ({
+      id: user.id,
+      username: user.username,
+      email: user.email
+    }))
+  }
 }

@@ -184,4 +184,51 @@ describe('Auth Routes', () => {
       expect(res.body).toHaveProperty('error')
     })
   })
+
+  describe('GET /auth/users', () => {
+    test('should return all users', async () => {
+      // Registra alguns usuários
+      await request(app)
+        .post('/auth/register')
+        .send({
+          username: 'user1',
+          email: 'user1@example.com',
+          password: 'password123'
+        })
+
+      await request(app)
+        .post('/auth/register')
+        .send({
+          username: 'user2',
+          email: 'user2@example.com',
+          password: 'password456'
+        })
+
+      // Busca todos os usuários
+      const res = await request(app)
+        .get('/auth/users')
+
+      expect(res.status).toBe(200)
+      expect(res.body).toHaveProperty('users')
+      expect(Array.isArray(res.body.users)).toBe(true)
+      expect(res.body.users.length).toBeGreaterThanOrEqual(2)
+      
+      // Verifica que cada usuário tem os campos esperados
+      res.body.users.forEach(user => {
+        expect(user).toHaveProperty('id')
+        expect(user).toHaveProperty('username')
+        expect(user).toHaveProperty('email')
+      })
+    })
+
+    test('should return empty array when no users exist', async () => {
+      const res = await request(app)
+        .get('/auth/users')
+
+      expect(res.status).toBe(200)
+      expect(res.body).toHaveProperty('users')
+      expect(Array.isArray(res.body.users)).toBe(true)
+      expect(res.body.users.length).toBe(0)
+    })
+  })
 })

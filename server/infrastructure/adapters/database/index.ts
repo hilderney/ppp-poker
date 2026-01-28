@@ -6,9 +6,9 @@ export type { IDatabaseAdapter, IQueryResult } from './IDatabaseAdapter.js'
 export { PostgresAdapter } from './PostgresAdapter.js'
 export { MockAdapter } from './MockAdapter.js'
 
-export function createDatabaseAdapter(
+export async function createDatabaseAdapter(
   type: 'postgres' | 'mock' = 'postgres'
-): any {
+): Promise<any> {
   switch (type) {
     case 'mock':
       const { MockAdapter } = await import('./MockAdapter.js')

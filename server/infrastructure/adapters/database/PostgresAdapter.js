@@ -184,6 +184,25 @@ export class PostgresAdapter {
   }
 
   /**
+   * Lista todos os usuários
+   */
+  async getAllUsers() {
+    try {
+      const users = await this.prisma.user.findMany({
+        select: {
+          id: true,
+          username: true,
+          email: true
+        }
+      })
+      return users
+    } catch (error) {
+      console.error('Error getting all users:', error)
+      throw error
+    }
+  }
+
+  /**
    * Converte nome da entidade para o nome do modelo Prisma
    * Ex: 'room' -> 'Room', 'user' -> 'User'
    */

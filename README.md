@@ -5,9 +5,9 @@ Aplicação web de Planning Poker com autenticação JWT, WebSocket real-time e 
 ## 🎯 Status do Projeto
 
 - ✅ **Phase 1 (MVP)** - Autenticação & Sessão - **COMPLETO**
-- 🔄 **Phase 2** - WebSocket Confiável (Socket.io) - Próximo
-- 📋 **Phase 3** - Validações & Testes E2E - Planejado
-- 🚀 **Phase 4** - Deploy & Escalabilidade - Futuro
+- ✅ **Phase 2** - WebSocket Confiável (Socket.io) - **COMPLETO**
+- 🔄 **Phase 2 Completo** - Validações & Testes E2E - Próximo
+- 📋 **Phase 3** - Deploy & Escalabilidade - Planejado
 
 ## 📦 Funcionalidades Implementadas
 
@@ -19,6 +19,15 @@ Aplicação web de Planning Poker com autenticação JWT, WebSocket real-time e 
 - [x] Middleware de autenticação Express
 - [x] Schema Prisma com User autenticado
 - [x] 14 testes passando
+
+### ✅ WebSocket Confiável (Phase 2)
+- [x] Migração de `ws` para `socket.io` 4.7.2
+- [x] Auto-reconnection com backoff exponencial
+- [x] Heartbeat automático (30s ping interval)
+- [x] Fallback HTTP Polling
+- [x] Eventos de room com namespaces Socket.io
+- [x] 6 testes de integração Socket.io
+- [x] Documentação completa (PHASE2-WEBSOCKET.md)
 
 ### 🎮 Planning Poker
 - [x] Salas multi-usuários

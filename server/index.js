@@ -7,7 +7,7 @@
 
 import express from 'express'
 import http from 'http'
-import { WebSocketServer } from 'ws'
+import { Server as SocketIOServer } from 'socket.io'
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSpec } from './swagger.js'
 import { createRoomService } from './services/roomServiceFactory.js'
@@ -15,8 +15,6 @@ import { UserService } from './services/userService.js'
 import { createAuthRoutes } from './routes/authRoutes.js'
 import { verifyAccessToken, extractToken } from './services/authService.js'
 import MessageHandler from './handlers/messageHandler.js'
-
-const OPEN = 1  // WebSocket.OPEN constant
 
 /**
  * Inicializa o servidor com as dependências apropriadas
@@ -39,7 +37,19 @@ async function initializeServer() {
     
     const app = express()
     const server = http.createServer(app)
-    const wss = new WebSocketServer({ server })
+    const io = new SocketIOServer(server, {
+      cors: {
+        origin: '*',
+        methods: ['GET', 'POST']
+      },
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      reconnectionAttempts: 5,
+      pingInterval: 30000,
+      pingTimeout: 60000
+    })
 
     // ============================================
     // Middleware Express
@@ -98,92 +108,127 @@ async function initializeServer() {
      */
     function broadcastRoomState(roomId) {
       const state = roomService.getRoom(roomId)
-      const msg = JSON.stringify({ type: 'state', state })
+      const msg = { type: 'state', state }
       
-      const clients = Array.from(wss.clients || []).filter(
-        (c) => c && c.readyState === OPEN && c.room === roomId
-      )
+      // Socket.io emit para todos os clientes em um namespace/room específico
+      io.to(`room:${roomId}`).emit('room:state', msg)
       
+      const connectedClients = io.sockets.adapter.rooms.get(`room:${roomId}`)?.size || 0
       console.log(
-        `[${new Date().toISOString()}] Broadcasting state to ${clients.length} clients in room=${roomId}`
+        `[${new Date().toISOString()}] Broadcasting state to ${connectedClients} clients in room=${roomId}`
       )
-      
-      clients.forEach((c) => {
-        try {
-          c.send(msg)
-        } catch (err) {
-          console.error('Error sending to client:', err)
-        }
-      })
     }
 
     /**
-     * Extrai o ID da sala do request URL
+     * Extrai token da query params do socket
      */
-    function extractRoomFromUrl(reqUrl) {
-      try {
-        const url = new URL(reqUrl, `http://localhost`)
-        return url.searchParams.get('room') || 'default'
-      } catch (err) {
-        return 'default'
-      }
+    function extractTokenFromSocket(socket) {
+      const token = socket.handshake.headers.authorization || 
+                   socket.handshake.auth?.token ||
+                   socket.handshake.query?.token
+      return extractToken(token)
     }
 
     // ============================================
-    // WebSocket Connection Handler
+    // Socket.io Connection Handler
     // ============================================
-    wss.on('connection', (ws, req) => {
-      // Extrai token do header
-      const token = extractToken(req.headers.authorization)
+    io.on('connection', (socket) => {
+      // Extrai token do handshake
+      const token = extractTokenFromSocket(socket)
       
-      // Valida token (opcional para compatibilidade com clientes antigos)
+      // Valida token
       let user = null
       if (token) {
         user = verifyAccessToken(token)
         if (!user) {
-          console.warn('Invalid token provided, closing connection')
-          ws.close(4001, 'Invalid token')
+          console.warn('Invalid token provided, disconnecting socket:', socket.id)
+          socket.disconnect(true)
           return
         }
       } else {
         console.warn('No token provided, allowing anonymous connection (deprecated)')
       }
 
-      ws.room = extractRoomFromUrl(req.url)
-      ws.user = user // Armazena dados do usuário autenticado
+      // Obtém room da query ou usa 'default'
+      const roomId = socket.handshake.query.room || 'default'
+      
+      socket.join(`room:${roomId}`)
+      socket.data.room = roomId
+      socket.data.user = user
 
       const messageHandler = new MessageHandler(roomService, broadcastRoomState)
 
-      ws.on('message', async (msg) => {
-        console.log(`[${new Date().toISOString()}] Received raw WS message:`, msg.toString())
+      console.log(
+        `[${new Date().toISOString()}] Client connected. id=${socket.id} room=${roomId} user=${user?.email || 'anonymous'}`
+      )
 
-        let data
-        try {
-          data = JSON.parse(msg)
-        } catch (err) {
-          console.warn('Malformed WS message, ignoring')
+      // Emite evento de usuário conectado
+      io.to(`room:${roomId}`).emit('user:connected', {
+        userId: user?.id,
+        email: user?.email,
+        socketId: socket.id
+      })
+
+      socket.on('message', async (data) => {
+        console.log(`[${new Date().toISOString()}] Received message:`, data)
+
+        if (!data || typeof data !== 'object') {
+          console.warn('Invalid message format, ignoring')
           return
         }
 
-        console.log(`[${new Date().toISOString()}] Parsed WS message:`, data)
-
-        const roomId = data.room || ws.room || 'default'
+        const room = data.room || roomId
 
         try {
-          await messageHandler.handle(data, roomId)
+          await messageHandler.handle(data, room)
         } catch (err) {
           console.error(`Error handling message:`, err)
+          socket.emit('error', { message: 'Error processing message', error: err.message })
         }
       })
 
-      ws.on('close', (code, reason) => {
-        console.log(
-          `[${new Date().toISOString()}] WS connection closed. code=${code} reason=${reason} room=${ws.room}`
-        )
+      socket.on('action', async (data) => {
+        console.log(`[${new Date().toISOString()}] Received action:`, data)
+        try {
+          await messageHandler.handle({ type: 'action', ...data }, roomId)
+        } catch (err) {
+          console.error(`Error handling action:`, err)
+          socket.emit('error', { message: 'Error processing action', error: err.message })
+        }
       })
 
-      ws.on('error', (err) => {
-        console.error(`[${new Date().toISOString()}] WS connection error:`, err)
+      socket.on('join', async (data) => {
+        console.log(`[${new Date().toISOString()}] Received join:`, data)
+        try {
+          await messageHandler.handle({ type: 'join', ...data }, roomId)
+        } catch (err) {
+          console.error(`Error handling join:`, err)
+          socket.emit('error', { message: 'Error joining room', error: err.message })
+        }
+      })
+
+      socket.on('disconnect', (reason) => {
+        console.log(
+          `[${new Date().toISOString()}] Client disconnected. id=${socket.id} room=${roomId} reason=${reason}`
+        )
+        
+        // Emite evento de usuário desconectado
+        io.to(`room:${roomId}`).emit('user:disconnected', {
+          socketId: socket.id,
+          userId: user?.id
+        })
+      })
+
+      socket.on('error', (err) => {
+        console.error(`[${new Date().toISOString()}] Socket error:`, err)
+      })
+
+      // Health check ping
+      socket.on('ping', (callback) => {
+        console.log(`[${new Date().toISOString()}] Received ping from ${socket.id}`)
+        if (typeof callback === 'function') {
+          callback({ timestamp: Date.now() })
+        }
       })
     })
 
@@ -210,9 +255,8 @@ async function initializeServer() {
     // Cleanup on shutdown
     process.on('SIGINT', async () => {
       console.log('\nShutting down server gracefully...')
-      wss.close(() => {
-        console.log('WebSocket server closed')
-      })
+      io.close()
+      console.log('Socket.io server closed')
       server.close(async () => {
         console.log('HTTP server closed')
         if (roomService?.roomRepository?.adapter) {

@@ -148,20 +148,21 @@ export const SuccessResponseSchema = z.object({
 })
 
 // ============================================
-// Tipo definitions usando Zod
+// Tipo definitions usando Zod (comentado para JS puro)
+// Para usar com TypeScript, descomente abaixo
 // ============================================
 
-export type RegisterInput = z.infer<typeof RegisterSchema>
-export type LoginInput = z.infer<typeof LoginSchema>
-export type RefreshTokenInput = z.infer<typeof RefreshTokenSchema>
-export type CreateRoomInput = z.infer<typeof CreateRoomSchema>
-export type UpdateRoomInput = z.infer<typeof UpdateRoomSchema>
-export type VoteInput = z.infer<typeof VoteSchema>
-export type WSJoinInput = z.infer<typeof WSJoinSchema>
-export type WSActionInput = z.infer<typeof WSActionSchema>
-export type User = z.infer<typeof UserSchema>
-export type ErrorResponse = z.infer<typeof ErrorResponseSchema>
-export type SuccessResponse = z.infer<typeof SuccessResponseSchema>
+// export type RegisterInput = z.infer<typeof RegisterSchema>
+// export type LoginInput = z.infer<typeof LoginSchema>
+// export type RefreshTokenInput = z.infer<typeof RefreshTokenSchema>
+// export type CreateRoomInput = z.infer<typeof CreateRoomSchema>
+// export type UpdateRoomInput = z.infer<typeof UpdateRoomSchema>
+// export type VoteInput = z.infer<typeof VoteSchema>
+// export type WSJoinInput = z.infer<typeof WSJoinSchema>
+// export type WSActionInput = z.infer<typeof WSActionSchema>
+// export type User = z.infer<typeof UserSchema>
+// export type ErrorResponse = z.infer<typeof ErrorResponseSchema>
+// export type SuccessResponse = z.infer<typeof SuccessResponseSchema>
 
 // ============================================
 // Validation Utility Functions

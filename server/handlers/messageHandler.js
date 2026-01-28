@@ -3,6 +3,8 @@
  * Responsável por: validação e roteamento de mensagens para a lógica apropriada
  */
 
+import { validateData, WSJoinSchema, WSActionSchema, WSMessageSchema } from '../validators/schemas.js'
+
 class MessageHandler {
   constructor(roomService, broadcastFn) {
     this.roomService = roomService
@@ -10,12 +12,19 @@ class MessageHandler {
   }
 
   /**
-   * Processa uma mensagem recebida
+   * Processa uma mensagem recebida com validação
    */
   async handle(data, roomId) {
-    const { type, action, clientId } = data
+    const { type } = data
 
     try {
+      // Validação básica
+      const validation = validateData(WSMessageSchema, data)
+      if (!validation.valid) {
+        console.warn('Invalid message format:', validation.errors)
+        throw new Error('Invalid message format')
+      }
+
       if (type === 'join') {
         return this.handleJoin(data, roomId)
       }
@@ -33,10 +42,16 @@ class MessageHandler {
   }
 
   /**
-   * Trata solicitação de entrada em uma sala
+   * Trata solicitação de entrada em uma sala com validação
    */
   handleJoin(data, roomId) {
-    const { clientId, name } = data
+    // Validar contra schema de join
+    const validation = validateData(WSJoinSchema, data)
+    if (!validation.valid) {
+      throw new Error(`Invalid join message: ${validation.errors.map(e => e.message).join(', ')}`)
+    }
+
+    const { clientId, name } = validation.data
 
     this.roomService.ensureUserExists(roomId, clientId, name)
     const state = this.roomService.getRoom(roomId)

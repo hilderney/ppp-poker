@@ -10,6 +10,8 @@ import express from 'express'
 import { createTokenPair, createAccessToken } from '../services/authService.js'
 import { verifyRefreshToken } from '../services/authService.js'
 import { authMiddleware } from '../middleware/authMiddleware.js'
+import { validateBody } from '../middleware/validationMiddleware.js'
+import { RegisterSchema, LoginSchema, RefreshTokenSchema } from '../validators/schemas.js'
 
 export function createAuthRoutes(userService) {
   const router = express.Router()
@@ -50,16 +52,9 @@ export function createAuthRoutes(userService) {
    *       400:
    *         description: Erro na validação ou registro
    */
-  router.post('/register', async (req, res) => {
+  router.post('/register', validateBody(RegisterSchema), async (req, res) => {
     try {
-      const { username, email, password, name } = req.body
-
-      // Validação básica
-      if (!username || !email || !password) {
-        return res.status(400).json({
-          error: 'Username, email e password são obrigatórios'
-        })
-      }
+      const { username, email, password } = req.body
 
       // Registra usuário
       const user = await userService.register(username, email, password)
@@ -72,12 +67,17 @@ export function createAuthRoutes(userService) {
       })
 
       res.status(201).json({
+        success: true,
         user,
         ...tokens
       })
     } catch (error) {
       console.error('Register error:', error.message)
-      res.status(400).json({ error: error.message })
+      res.status(400).json({ 
+        error: 'Registration failed',
+        message: error.message,
+        timestamp: new Date()
+      })
     }
   })
 
@@ -111,16 +111,9 @@ export function createAuthRoutes(userService) {
    *       400:
    *         description: Credenciais inválidas
    */
-  router.post('/login', async (req, res) => {
+  router.post('/login', validateBody(LoginSchema), async (req, res) => {
     try {
       const { email, password } = req.body
-
-      // Validação
-      if (!email || !password) {
-        return res.status(400).json({
-          error: 'Email e password são obrigatórios'
-        })
-      }
 
       // Faz login
       const user = await userService.login(email, password)
@@ -133,12 +126,17 @@ export function createAuthRoutes(userService) {
       })
 
       res.status(200).json({
+        success: true,
         user,
         ...tokens
       })
     } catch (error) {
       console.error('Login error:', error.message)
-      res.status(401).json({ error: error.message })
+      res.status(401).json({ 
+        error: 'Login failed',
+        message: error.message,
+        timestamp: new Date()
+      })
     }
   })
 
@@ -146,18 +144,18 @@ export function createAuthRoutes(userService) {
    * POST /auth/refresh
    * Renova o access token usando refresh token
    */
-  router.post('/refresh', async (req, res) => {
+  router.post('/refresh', validateBody(RefreshTokenSchema), async (req, res) => {
     try {
       const { refreshToken } = req.body
-
-      if (!refreshToken) {
-        return res.status(400).json({ error: 'Refresh token obrigatório' })
-      }
 
       // Verifica refresh token
       const payload = verifyRefreshToken(refreshToken)
       if (!payload) {
-        return res.status(401).json({ error: 'Refresh token inválido ou expirado' })
+        return res.status(401).json({ 
+          error: 'Refresh failed',
+          message: 'Refresh token inválido ou expirado',
+          timestamp: new Date()
+        })
       }
 
       // Cria novo access token
@@ -168,12 +166,17 @@ export function createAuthRoutes(userService) {
       })
 
       res.status(200).json({
+        success: true,
         accessToken,
         expiresIn: '15m'
       })
     } catch (error) {
       console.error('Refresh error:', error.message)
-      res.status(401).json({ error: error.message })
+      res.status(401).json({ 
+        error: 'Refresh failed',
+        message: error.message,
+        timestamp: new Date()
+      })
     }
   })
 

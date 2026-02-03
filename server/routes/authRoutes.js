@@ -141,8 +141,40 @@ export function createAuthRoutes(userService) {
   })
 
   /**
-   * POST /auth/refresh
-   * Renova o access token usando refresh token
+   * @swagger
+   * /api/auth/refresh:
+   *   post:
+   *     summary: Renova o access token usando refresh token
+   *     tags: [Authentication]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               refreshToken:
+   *                 type: string
+   *                 example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+   *             required: [refreshToken]
+   *     responses:
+   *       200:
+   *         description: Token renovado com sucesso
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                   example: true
+   *                 accessToken:
+   *                   type: string
+   *                 expiresIn:
+   *                   type: string
+   *                   example: "15m"
+   *       401:
+   *         description: Refresh token inválido ou expirado
    */
   router.post('/refresh', validateBody(RefreshTokenSchema), async (req, res) => {
     try {
@@ -181,8 +213,29 @@ export function createAuthRoutes(userService) {
   })
 
   /**
-   * GET /auth/me
-   * Obtém dados do usuário autenticado
+    * @swagger
+   * /api/auth/me:
+   *   get:
+   *     summary: Obtém dados do usuário autenticado
+   *     tags: [Authentication]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Dados do usuário obtidos com sucesso
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 user:
+   *                   $ref: '#/components/schemas/User'
+   *       401:
+   *         description: Token ausente ou inválido
+   *       404:
+   *         description: Usuário não encontrado
+   *       500:
+   *         description: Erro interno do servidor
    */
   router.get('/me', authMiddleware, async (req, res) => {
     try {

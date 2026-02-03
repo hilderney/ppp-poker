@@ -1,4 +1,8 @@
 import swaggerJsdoc from 'swagger-jsdoc'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const options = {
   definition: {
@@ -18,6 +22,22 @@ const options = {
       }
     ],
     paths: {
+      '/': {
+        get: {
+          summary: 'Mensagem de boas-vindas do servidor',
+          tags: ['Health'],
+          responses: {
+            200: {
+              description: 'Servidor respondendo',
+              content: {
+                'text/plain': {
+                  schema: { type: 'string', example: 'PPP Poker WebSocket server' }
+                }
+              }
+            }
+          }
+        }
+      },
       '/health': {
         get: {
           summary: 'Verifica a saúde do servidor',
@@ -41,6 +61,13 @@ const options = {
       }
     },
     components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      },
       schemas: {
         User: {
           type: 'object',
@@ -73,7 +100,7 @@ const options = {
       }
     }
   },
-  apis: ['./server/routes/*.js']
+  apis: [path.join(__dirname, 'routes', '*.js')]
 }
 
 export const swaggerSpec = swaggerJsdoc(options)
